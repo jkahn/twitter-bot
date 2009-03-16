@@ -5,7 +5,7 @@ use strict;
 
 =head1 NAME
 
-Twitter::Bot - The great new Twitter::Bot!
+Twitter::Bot - abstraction for a twitterbot. Subclasses are actual bots
 
 =head1 VERSION
 
@@ -18,35 +18,136 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+Other twitterbot classes can inherit from this class, register certain
+methods as callbacks and have those methods invoked when certain
+twitterish activities occur, e.g. a friend's status updates, the bot
+receives a direct_message, or a new follower appears.
 
-Perhaps a little code snippet.
+  ## in MyBotClass.pm
+  use strict; use warnings;
+  use base 'Twitter::Bot';
+  sub new {
+    my $class = shift;
+    my %args = @_;
+    my $self = $class->SUPER::new(%args);
+    $self->timeline_callback(timeline => 'friends_timeline',
+                             interval => {minutes => 5},
+                             callback => 'handle_friends_update',
+                             );
+    $self->links_callback(links => 'inbound',
+                          interval => {minutes => 60},
+                          callback => 'handle_new_follower',
+                         );
+    return $self;
+  }
+  # ...
+  sub handle_friends_update {
+    my $self = shift; my $update = shift;
+    # ....
+  }
+  sub handle_new_follower {
+    my $self = shift; my $new_follower = shift;
+    # ...  e.g. use the $self->twitter() Net::Twitter object to
+    # auto-add the follower.
+  }
+  1;  # end of packagefile
 
-    use Twitter::Bot;
+then in a script (probably called from C<cron> every few minutes):
 
-    my $foo = Twitter::Bot->new();
-    ...
+  #!perl
+  use strict; use warnings;
+  use MyBotClass;
+  # ...
+  my $bot = MyBotClass->new(password => $password, username => $username);
 
-=head1 EXPORT
+  eval { $bot->check(); };
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+  if ($@) {
+    die "problems with mybotclass: $@\n";
+  }
+  exit 0;
 
-=head1 FUNCTIONS
+That's "all". The C<Twitter::Bot> base class handles the construction
+of offline storage so that the C<$bot> only handles new information,
+whether on a timeline or a link-set.
 
-=head2 function1
+If no callbacks have been registered with the instance, C<check> will
+C<carp>.
 
-=cut
+=head1 CLASS METHODS
 
-sub function1 {
-}
+=over
 
-=head2 function2
+=item new()
 
-=cut
+arguments for C<new> include the following keys:
 
-sub function2 {
-}
+=over
+
+=item username
+
+=item password
+
+=back
+
+=back
+
+=head1 INITIALIZATION INSTANCE METHODS
+
+Intended to be called on C<new()> initialization of the subclass. (see
+the L</SYNOPSIS>.) You can modify them over the lifetime of the
+object, but the design here works -- and is tested -- with invocation
+at initialization.
+
+=over
+
+=item timeline_callback
+
+arguments for C<timeline_callback> include:
+
+=over
+
+=item timeline
+
+=item user
+
+=item interval
+
+=item callback_method
+
+=item callback_args
+
+=back
+
+=item links_callback
+
+arguments for C<links_callback> include:
+
+=over
+
+=item links
+
+=item user
+
+=item interval
+
+=item callback_method
+
+=item callback_args
+
+=back
+
+=head1 INSTANCE METHODS
+
+=over
+
+=item check()
+
+=item twitter()
+
+=item username()
+
+=back
 
 =head1 AUTHOR
 
@@ -54,11 +155,11 @@ Jeremy G. KAHN, C<< <kahn at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-twitter-bot at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Twitter-Bot>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
+Please report any bugs or feature requests to C<bug-twitter-bot at
+rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Twitter-Bot>.  I will
+be notified, and then you'll automatically be notified of progress on
+your bug as I make changes.
 
 
 =head1 SUPPORT
@@ -93,10 +194,20 @@ L<http://search.cpan.org/dist/Twitter-Bot>
 
 =head1 ACKNOWLEDGEMENTS
 
+The C<Net::Twitter> developers; C<Net::Twitter> provides a natural
+Perlish interface to the Twitter API.
+
+=head1 SEE ALSO
+
+=over
+
+=item L<Net::Twitter>
+
+=back
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2009 Jeremy G. KAHN, all rights reserved.
+Copyright 2009 Jeremy G. KAHN.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
