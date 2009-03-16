@@ -1,0 +1,10 @@
+Changes
+MANIFEST
+Makefile.PL
+README
+lib/Twitter/Bot.pm
+lib/Twitter/Bot/Set.pm
+lib/Twitter/Bot/Timeline.pm
+t/00-load.t
+t/pod-coverage.t
+t/pod.t

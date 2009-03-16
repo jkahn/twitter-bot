@@ -1,0 +1,48 @@
+Twitter-Bot
+
+Abstract base class for managing a stateful automated interface to the
+Twitter environment, e.g. in a retweeter or a bot.
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+	perl Makefile.PL
+	make
+	make test
+	make install
+
+DEPENDENCIES
+
+  Net::Twitter
+  MLDBM, DB_File and Storable
+
+SUPPORT AND DOCUMENTATION
+
+After installing, you can find documentation for this module with the
+perldoc command.
+
+    perldoc Twitter::Bot
+
+You can also look for information at:
+
+    RT, CPAN's request tracker
+        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Twitter-Bot
+
+    AnnoCPAN, Annotated CPAN documentation
+        http://annocpan.org/dist/Twitter-Bot
+
+    CPAN Ratings
+        http://cpanratings.perl.org/d/Twitter-Bot
+
+    Search CPAN
+        http://search.cpan.org/dist/Twitter-Bot
+
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2009 Jeremy G. KAHN
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
