@@ -5,7 +5,8 @@ use strict;
 
 =head1 NAME
 
-Twitter::Bot::Set - The great new Twitter::Bot::Set!
+Twitter::Bot::Set - Session storage for watching a particular Twitter
+  user's friends or followers list.
 
 =head1 VERSION
 
@@ -18,35 +19,34 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+Utility data class used by C<Twitter::Bot>. Stores friends or
+followers sets from the given user. When asked to check, rechecks that
+user's friends [followers] set and reports those friends [or
+followers] added and deleted.
 
-Perhaps a little code snippet.
+B<THIS IS A UTILITY CLASS>. It is explicitly designed to be called
+entirely within C<Twitter::Bot>; even subclasses of C<Twitter::Bot>
+need not use this interface.
 
-    use Twitter::Bot::Set;
+=head1 CLASS METHODS
 
-    my $foo = Twitter::Bot::Set->new();
-    ...
+=over
 
-=head1 EXPORT
+=item new()
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+=item revive()
 
-=head1 FUNCTIONS
+=back
 
-=head2 function1
+=head1 INSTANCE METHODS
 
-=cut
+=over
 
-sub function1 {
-}
+=item check()
 
-=head2 function2
+=item seen_link()
 
-=cut
-
-sub function2 {
-}
+=back
 
 =head1 AUTHOR
 
@@ -54,19 +54,17 @@ Jeremy G. KAHN, C<< <kahn at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-twitter-bot-set at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Twitter-Bot>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
+Please report any bugs or feature requests to C<bug-twitter-bot-set at
+rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Twitter-Bot>.  I will
+be notified, and then you'll automatically be notified of progress on
+your bug as I make changes.
 
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
     perldoc Twitter::Bot
-
 
 You can also look for information at:
 
@@ -93,14 +91,12 @@ L<http://search.cpan.org/dist/Twitter-Bot>
 
 =head1 ACKNOWLEDGEMENTS
 
-
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2009 Jeremy G. KAHN, all rights reserved.
+Copyright 2009 Jeremy G. KAHN.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
-
 
 =cut
 

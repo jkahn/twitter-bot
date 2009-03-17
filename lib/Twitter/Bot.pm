@@ -58,8 +58,8 @@ then in a script (probably called from C<cron> every few minutes):
   use strict; use warnings;
   use MyBotClass;
   # ...
-  my $bot = MyBotClass->new(password => $password, username => $username);
-
+  my $bot = MyBotClass->new(password => $password,
+                            username => $username);
   eval { $bot->check(); };
 
   if ($@) {
@@ -88,6 +88,8 @@ arguments for C<new> include the following keys:
 
 =item password
 
+=item directory
+
 =back
 
 =back
@@ -101,7 +103,7 @@ at initialization.
 
 =over
 
-=item timeline_callback
+=item timeline_callback()
 
 arguments for C<timeline_callback> include:
 
@@ -119,7 +121,7 @@ arguments for C<timeline_callback> include:
 
 =back
 
-=item links_callback
+=item links_callback()
 
 arguments for C<links_callback> include:
 
@@ -137,6 +139,8 @@ arguments for C<links_callback> include:
 
 =back
 
+=back
+
 =head1 INSTANCE METHODS
 
 =over
@@ -146,6 +150,8 @@ arguments for C<links_callback> include:
 =item twitter()
 
 =item username()
+
+=item directory()
 
 =back
 
