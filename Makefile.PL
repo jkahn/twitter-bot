@@ -6,7 +6,8 @@ author   'Jeremy G. KAHN <kahn@cpan.org>';
 
 build_requires 'Test::More';
 
-auto_install;
+requires Net::Twitter => '2.00';
+requires 'MLDBM';
 
 WriteAll;
 
