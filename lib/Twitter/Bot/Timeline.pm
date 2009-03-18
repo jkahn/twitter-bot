@@ -2,6 +2,7 @@ package Twitter::Bot::Timeline;
 
 use warnings;
 use strict;
+use Carp;
 
 =head1 NAME
 

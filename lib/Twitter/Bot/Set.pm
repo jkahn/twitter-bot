@@ -2,6 +2,7 @@ package Twitter::Bot::Set;
 
 use warnings;
 use strict;
+use Carp;
 
 =head1 NAME
 
