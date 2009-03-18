@@ -81,17 +81,71 @@ C<carp>.
 
 =item new()
 
-arguments for C<new> include the following keys:
+=cut
+
+sub new {
+  my $class = shift;
+  my %args = @_;
+
+
+=pod
+
+arguments for C<new> include the following mandatory keys:
 
 =over
 
 =item username
 
+the username with which to log into the Twitter service.
+
+=cut
+
+  croak "no username key provided" unless defined $args{username};
+  my $username = $args{username};
+  delete $args{username};
+  $args{__PACKAGE__ . "_username"} = $username;
+
 =item password
+
+The password with which to log into the Twitter service.
+
+=cut
+
+  croak "no password key provided" unless defined $args{password};
+  my $password = $args{password};  delete $args{password};
 
 =item directory
 
+The directory in which to store state and memory files for the
+bot. Must exist; the bot will write new files into that directory. At
+first run, should probably be empty but this class does not check
+that.
+
+=cut
+
+  croak "no directory key provided" unless defined $args{directory};
+  croak "directory => $args{directory} not a readable, writable directory"
+    unless -d $args{directory}
+      and -w $args{directory} and -r $args{directory};
+  $args{__PACKAGE__ . "_directory"} = $args{directory};
+  delete $args{directory};
+
 =back
+
+=cut
+
+  my $twitter =
+    Net::Twitter->new(username => $username, password => $password);
+  croak "something went wrong with twitter initialization"
+    unless defined $twitter;
+  $args{__PACKAGE__ . "_twitter"} = $twitter;
+
+  my $self = bless \%args, $class;
+
+  # all done with new()
+  return $self;
+
+} # end new()
 
 =back
 
