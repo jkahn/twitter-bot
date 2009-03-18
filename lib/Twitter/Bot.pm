@@ -202,11 +202,49 @@ arguments for C<links_callback> include:
 
 =item check()
 
+Actually checks the registered timelines and friend/follower links. If
+they're registered with an C<interval> that is larger than the time
+since last C<check()>, will do nothing.
+
+When one of the sub-checks returns new status or friend-link info,
+calls the registered C<callback> methods with the new information
+(once per new datum).
+
 =item twitter()
+
+retrieves the C<Net::Twitter> object used by the bot.
+
+=cut
+
+sub twitter {
+  my $self = shift;
+  return $self->{__PACKAGE__ . "_twitter"};
+}
 
 =item username()
 
+retrieves the C<username> given at initialization. No interface is
+given for the C<password>.
+
+=cut
+
+sub username {
+  my $self = shift;
+  return $self->{__PACKAGE__ . "_username"};
+}
+
 =item directory()
+
+retrieves the working directory given at initialization. May not be a
+good idea to touch anything in this directory this until/unless
+C<Twitter::Bot> does a better job at documenting what files it uses.
+
+=cut
+
+sub directory {
+  my $self = shift;
+  return $self->{__PACKAGE__ . "_directory"};
+}
 
 =back
 
