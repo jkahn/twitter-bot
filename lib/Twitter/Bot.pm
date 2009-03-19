@@ -255,9 +255,9 @@ to the arguments given to the C<callback_method> when called.
 
 =cut
 
+  $args{callback_args} = {} if not defined $args{callback_args};
   croak "callback_args defined but not a hashref"
-    if (defined $args{callback_args}
-	and not (ref $args{callback_args} eq 'HASH'));
+    unless ref $args{callback_args} eq 'HASH';
 
 =back
 
