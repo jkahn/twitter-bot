@@ -265,6 +265,11 @@ to the arguments given to the C<callback_method> when called.
 
   # TO DO: construct a Twitter::Bot::Timeline object
   my $key = $args{user} . "_" . $args{timeline};
+
+  if (defined $self->{__PACKAGE__ . "_timeline"}{$key}) {
+    carp "overwriting callback on $key";
+  }
+
   my $statefile =
     $self->directory . "/" . "state_" . $key;
   my $statusfile = $self->directory . '/' "statuses_" . $key;
@@ -273,13 +278,17 @@ to the arguments given to the C<callback_method> when called.
   my $statuses = $class->_revive($statusfile);
 
 
+
   my $timeline_obj =
     Twitter::Bot::Timeline->new(state => \$state,
 				statuses => \$statuses,
 			        timeline => $args{timeline},
+				interval => $args{interval},
 			        user => $args{user});
 
   $self->{__PACKAGE__ . "_timeline"}{$key} = $timeline_obj;
+  $self->{__PACKAGE__ . "_timeline_callback"}{$key} = $args{callback_method};
+  $self->{__PACKAGE__ . "_timeline_callback_args"}{$key} = $args{callback_args};
 
   return;
 } # end timeline_callback
