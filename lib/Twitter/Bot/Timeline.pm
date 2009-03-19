@@ -35,6 +35,32 @@ need not use this interface.
 
 =item new()
 
+Constructs a new (possibly revived) object. Given keys:
+
+=over
+
+=item state
+
+hashref representing state (last-checked info, etc); C<Twitter::Bot>
+uses a tied MLDBM hash to populate this
+
+=item statuses
+
+hashref representing statuses (id => status hashref); C<Twitter::Bot>
+uses a tied MLDBM hash to populate this
+
+=item timeline
+
+which timeline to check (C<public_timeline>, C<friends_timeline>,
+C<user_timeline>)
+
+=item user
+
+which C<user_timeline> (or C<friends_timeline>) to check (ignored on
+C<public_timeline>)
+
+=back
+
 =item revive()
 
 =back
