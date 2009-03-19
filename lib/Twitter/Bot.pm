@@ -87,7 +87,6 @@ sub new {
   my $class = shift;
   my %args = @_;
 
-
 =pod
 
 arguments for C<new> include the following mandatory keys:
@@ -160,37 +159,118 @@ at initialization.
 
 =item timeline_callback()
 
+register callback to watch status updates associated with C<user>. Can
+track the user's statuses, or the status of their friends-list, or the
+public timeline.
+
 arguments for C<timeline_callback> include:
 
 =over
 
 =item timeline
 
+specify which timeline to be checked. Possible values include:
+
+=over
+
+=item user_timeline
+
+timeline of C<user>.
+
+=item friends_timeline
+
+timeline of friends of C<user>.
+
+=item public_timeline
+
+The public timeline.
+
+=back
+
 =item user
+
+Specify which user's timeline (or friends' timeline) to track. Default
+is C<username> used to access twitter.
 
 =item interval
 
+Minimum time between checks. Specify as C<DateTime::Duration> object
+or parameters for initializing such an object, e.g. C<< {minutes =>
+30} >>.
+
 =item callback_method
 
+Which method (on the subclass) should be invoked with new status
+information.  The subclass must pass C<< $self->can($method) >> upon
+registration.
+
+The specified C<callback_method> will be called with a hash of
+arguments, including the status (with key C<status>) and the
+C<callback_args> (specified below).
+
 =item callback_args
+
+an optional argument. Value should be a hashref; this will be appended
+to the arguments given to the C<callback_method> when called.
 
 =back
 
 =item links_callback()
 
-arguments for C<links_callback> include:
+Register callback for watching friends/followers links associated with
+C<user>.
+
+Arguments for C<links_callback> include:
 
 =over
 
 =item links
 
+Which links to follow WRT C<user>. Values are C<inbound> or C<outbound>.
+
+C<friends> and C<following> are synonyms for C<outbound>. C<followers>
+is a synonym for C<inbound>.
+
 =item user
+
+Which user's links to consider. Defaults to the C<username> provided
+at initialization.
 
 =item interval
 
-=item callback_method
+Minimum time between checks of links to/from C<user>.  Specify as a
+C<DateTime::Duration> object or a hashref of parameters that creates
+one, e.g. C<< {hours => 4} >>.
 
-=item callback_args
+=item callback_add_method
+
+Which method (on the subclass) should be invoked with new link
+information.  The subclass must pass C<< $self->can($method) >> upon
+registration.
+
+The specified C<callback_method> will be called with a hash of
+arguments, including the other user involved in the new link (with key
+C<link>) and the C<callback_add_args> (specified below).
+
+=item callback_add_args
+
+specify optional hashref of args to pass to C<callback_add_method> at
+callback time.
+
+=item callback_remove_method
+
+Which method (on the subclass) should be invoked with removed link
+information.  The subclass must pass C<< $self->can($method) >> upon
+registration.
+
+The specified C<callback_method> will be called with a hash of
+arguments, including the other user involved in the deleted link (with
+key C<link>) and the C<callback_remove_args> (specified below).
+
+=item callback_remove_args
+
+specify optional hashref of args to pass to C<callback_remove_method> at
+callback time.
 
 =back
 
