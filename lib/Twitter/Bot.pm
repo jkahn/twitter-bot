@@ -163,13 +163,30 @@ register callback to watch status updates associated with C<user>. Can
 track the user's statuses, or the status of their friends-list, or the
 public timeline.
 
+=cut
+
+sub timeline_callback {
+  my $self = shift;
+  my $class = ref $self;
+  my %args = @_;
+
+=pod
+
 arguments for C<timeline_callback> include:
 
 =over
 
 =item timeline
 
-specify which timeline to be checked. Possible values include:
+specify which timeline to be checked.
+
+=cut
+
+  croak "no timeline arg specified" unless defined $args{timeline};
+
+=pod
+
+Possible values include:
 
 =over
 
@@ -187,16 +204,32 @@ The public timeline.
 
 =back
 
+=cut
+
+  croak "timeline => $args{timeline} unrecognized"
+    unless $args{timeline} = /^(user|friends|public)_timeline$/;
+
 =item user
 
 Specify which user's timeline (or friends' timeline) to track. Default
 is C<username> used to access twitter.
+
+=cut
+
+  $args{user} = $self->username()
+    if not defined $args{user};
 
 =item interval
 
 Minimum time between checks. Specify as C<DateTime::Duration> object
 or parameters for initializing such an object, e.g. C<< {minutes =>
 30} >>.
+
+=cut
+
+  croak "no interval argument provided"
+    unless defined $args{interval};
+  $args{interval} = $class->_upgrade_duration($args{interval});
 
 =item callback_method
 
@@ -208,12 +241,49 @@ The specified C<callback_method> will be called with a hash of
 arguments, including the status (with key C<status>) and the
 C<callback_args> (specified below).
 
+=cut
+
+  croak "no callback_method argument provided"
+    unless defined $args{callback_method};
+  croak "$self doesn't know how to $args{callback_method}"
+    unless $self->can($args{callback_method});
+
 =item callback_args
 
 an optional argument. Value should be a hashref; this will be appended
 to the arguments given to the C<callback_method> when called.
 
+=cut
+
+  croak "callback_args defined but not a hashref"
+    if (defined $args{callback_args}
+	and not (ref $args{callback_args} eq 'HASH'));
+
 =back
+
+=cut
+
+  # TO DO: construct a Twitter::Bot::Timeline object
+  my $key = $args{user} . "_" . $args{timeline};
+  my $statefile =
+    $self->directory . "/" . "state_" . $key;
+  my $statusfile = $self->directory . '/' "statuses_" . $key;
+
+  my $state = $class->_revive($statefile);
+  my $statuses = $class->_revive($statusfile);
+
+
+  my $timeline_obj =
+    Twitter::Bot::Timeline->new(state => \$state,
+				statuses => \$statuses,
+			        timeline => $args{timeline},
+			        user => $args{user});
+
+  $self->{__PACKAGE__ . "_timeline"}{$key} = $timeline_obj;
+
+  return;
+} # end timeline_callback
+
 
 =item links_callback()
 
@@ -327,6 +397,36 @@ sub directory {
 }
 
 =back
+
+=cut
+
+#### UTILITY PRIVATE CLASS METHODS
+
+sub _revive {
+  my $class = shift;
+  my $file = shift;
+
+  # TO DO: revive a tied MLDBM hashref from this file
+}
+
+sub _upgrade_duration {
+  # takes duration parameters and turns them into DateTime::Duration
+  # if they're not already.
+  my $class = shift;
+  my $dur = shift;
+  if (UNIVERSAL::isa($dur, 'DateTime::Duration')) {
+    return $dur;
+  }
+  if (ref $dur eq 'HASH') {
+    return DateTime::Duration->new(%$dur);
+  }
+
+  croak "unrecognized duration param ref to ", ref $dur
+    if ref $dur;
+
+  croak "unrecognized duration param $dur";
+}
+
 
 =head1 AUTHOR
 
