@@ -35,7 +35,37 @@ need not use this interface.
 
 =item new()
 
-=item revive()
+Takes the following arguments as a k/v hash:
+
+=over
+
+=item state
+
+a hashref indicating current state. C<Twitter::Bot> initializes these
+from MLDBM files on disk.
+
+=item set
+
+a hashref pointing to the set of current links. keys are userids,
+values are actual userinfo.
+
+=item user
+
+which user in the Twitter friends graph is being considered
+
+=item links
+
+whether this is a set of C<friends> (outbound) or C<followers>
+(inbound) links between C<user> and other twitterers.
+
+=item interval
+
+A C<DateTime::Duration> object that indicates the minimum time between
+checks; further calls to C<check> at less than C<interval> will
+harmlessly no-op, allowing different networks to be checked in the
+same script at different intervals.
+
+=back
 
 =back
 
