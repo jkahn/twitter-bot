@@ -377,11 +377,11 @@ sub check {
   my $twitter = $self->twitter();
 
   for my $key (sort keys %{$self->{__PACKAGE__ . "_timeline"}} ) {
-    my $callback_obj  = $self->{__PACKAGE__ . "_timeline"}{$key};
+    my $timeline_obj  = $self->{__PACKAGE__ . "_timeline"}{$key};
     my $callback_meth = $self->{__PACKAGE__ . "_timeline_callback"}{$key};
     my $callback_args = $self->{__PACKAGE__ . "_timeline_callback_args"}{$key};
 
-    my $statuses = $callback_obj->check(twitter => $twitter);
+    my $statuses = $timeline_obj->check(twitter => $twitter);
     for my $status (@$statuses) {
       $self->$callback_meth(status => $status, %{$callback_args});
     }
