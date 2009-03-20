@@ -299,27 +299,63 @@ to the arguments given to the C<callback_method> when called.
 Register callback for watching friends/followers links associated with
 C<user>.
 
+=cut
+
+sub links_callback {
+  my $self = shift;
+  my $class = ref $self;
+  my %args = @_;
+
+=pod
+
 Arguments for C<links_callback> include:
 
 =over
 
 =item links
 
-Which links to follow WRT C<user>. Values are C<inbound> or C<outbound>.
+Which links to follow WRT C<user>. Values are C<followers> or C<friends>.
 
-C<friends> and C<following> are synonyms for C<outbound>. C<followers>
-is a synonym for C<inbound>.
+C<outbound> and C<following> are synonyms for C<friends>. C<inbound>
+is a synonym for C<followers>.
+
+=cut
+
+  croak "no links key defined to links_callback"
+    unless defined $args{links};
+
+  # handle synonyms
+  $args{links} = 'friends'
+    if $args{links} eq 'outbound' or $args{links} eq 'following';
+  $args{links} = 'followers'
+    if $args{links} eq 'inbound';
+
+  croak "unrecognized value for links => $args{links}"
+    unless $args{links} eq 'friends' or $args{links} eq 'followers';
 
 =item user
 
 Which user's links to consider. Defaults to the C<username> provided
 at initialization.
 
+=cut
+
+  $args{user} = $self->username()
+    if not defined $args{user};
+  croak "bad or strange (whitespace?) user => \"$args{user}\""
+    if (length $args{user} == 0) or $args{user} =~ /\s/;
+
 =item interval
 
 Minimum time between checks of links to/from C<user>.  Specify as a
 C<DateTime::Duration> object or a hashref of parameters that creates
 one, e.g. C<< {hours => 4} >>.
+
+=cut
+
+  croak "no interval defined to links_callback"
+    unless defined $args{interval};
+  $args{interval} = $class->_upgrade_duration($args{interval});
 
 =item callback_add_method
 
@@ -331,10 +367,27 @@ The specified C<callback_method> will be called with a hash of
 arguments, including the other user involved in the new link (with key
 C<link>) and the C<callback_add_args> (specified below).
 
+=cut
+
+  croak "$class doesn't know how to $args{callback_add_method}"
+    if ( defined $args{callback_add_method}
+	 and not $self->can($args{callback_add_method}) );
+
 =item callback_add_args
 
 specify optional hashref of args to pass to C<callback_add_method> at
 callback time.
+
+=cut
+
+  croak "callback_add_args provided but no callback_add_method"
+    if ( defined $args{callback_add_args}
+	 and not defined $args{callback_add_method});
+  croak "callback_add_args defined but not a hashref"
+    if ( defined $args{callback_add_args}
+	 and not ref $args{callback_add_args} eq 'HASH' );
+  $args{callback_add_args} = {}
+    if not defined $args{callback_add_args};
 
 =item callback_remove_method
 
@@ -346,12 +399,77 @@ The specified C<callback_method> will be called with a hash of
 arguments, including the other user involved in the deleted link (with
 key C<link>) and the C<callback_remove_args> (specified below).
 
+=cut
+
+  croak "$class doesn't know how to $args{callback_remove_method}"
+    if ( defined $args{callback_remove_method}
+	 and not $self->can($args{callback_remove_method}) );
+
 =item callback_remove_args
 
 specify optional hashref of args to pass to C<callback_remove_method> at
 callback time.
 
+=cut
+
+  croak "callback_remove_args provided but no callback_remove_method"
+    if ( defined $args{callback_remove_args}
+	 and not defined $args{callback_remove_method});
+  croak "callback_add_args defined but not a hashref"
+    if ( defined $args{callback_remove_args}
+	 and not ref $args{callback_remove_args} eq 'HASH' );
+  $args{callback_remove_args} = {}
+    if not defined $args{callback_remove_args};
+
 =back
+
+At least one of C<callback_add_method> and C<callback_remove_method>
+must be provided.
+
+=cut
+
+  croak "neither callback_add_method nor callback_remove_method provided"
+    if (not defined $args{callback_add_method}
+	and not defined $args{callback_remove_method});
+
+  # construct a Twitter::Bot::Set object
+  my $key = $args{user} . "_" . $args{links};
+
+  if (defined $self->{__PACKAGE__ . "_links"}{$key}) {
+    carp "overwriting callback on $key";
+  }
+
+  my $statefile =
+    $self->directory . "/" . "state_" . $key;
+  my $setfile = $self->directory . "/" . "set_" . $key;
+
+  my $state = $class->_revive($statefile);
+  my $set = $class->_revive($setfile);
+
+  my $set_obj =
+    Twitter::Bot::Set->new(state => \$state,
+			   set => \$set,
+			   links => $args{links},
+			   interval => $args{interval},
+			   user => $args{user});
+
+  # store registered information
+  $self->{__PACKAGE__ . "_links"}{$key} = $set_obj;
+  if (defined $args{callback_add_method}) {
+    $self->{__PACKAGE__ . "_links_add_callback"}{$key}
+      = $args{callback_add_method};
+    $self->{__PACKAGE__ . "_links_add_args"}{$key}
+      = $args{callback_add_args};
+  }
+  if (defined $args{callback_remove_method}) {
+    $self->{__PACKAGE__ . "_links_remove_callback"}{$key}
+      = $args{callback_remove_method};
+    $self->{__PACKAGE__ . "_links_remove_args"}{$key}
+      = $args{callback_remove_args};
+  }
+
+  return;
+} # end links_callback
 
 =back
 
