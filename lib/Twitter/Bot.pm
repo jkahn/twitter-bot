@@ -245,7 +245,7 @@ C<callback_args> (specified below).
 
   croak "no callback_method argument provided"
     unless defined $args{callback_method};
-  croak "$self doesn't know how to $args{callback_method}"
+  croak "$class doesn't know how to $args{callback_method}"
     unless $self->can($args{callback_method});
 
 =item callback_args
@@ -272,7 +272,7 @@ to the arguments given to the C<callback_method> when called.
 
   my $statefile =
     $self->directory . "/" . "state_" . $key;
-  my $statusfile = $self->directory . '/' "statuses_" . $key;
+  my $statusfile = $self->directory . '/' . "statuses_" . $key;
 
   my $state = $class->_revive($statefile);
   my $statuses = $class->_revive($statusfile);
