@@ -387,6 +387,29 @@ sub check {
     }
   }
 
+  for my $key (sort keys %{$self->{__PACKAGE__ . "_links"}} ) {
+    my $links_obj  = $self->{__PACKAGE__ . "_links"}{$key};
+
+    my ($added, $removed) = $links_obj->check(twitter => $twitter);
+
+    my $callback_add_meth
+      = $self->{__PACKAGE__ . "_links_added_callback"}{$key};
+    my $callback_add_args
+      = $self->{__PACKAGE__ . "_links_added_callback_args"}{$key};
+    for my $added_friend (@$added) {
+      $self->$callback_add_meth(link => $added_friend,
+				%{$callback_add_args});
+    }
+
+    my $callback_rm_meth
+      = $self->{__PACKAGE__ . "_links_removed_callback"}{$key};
+    my $callback_rm_args
+      = $self->{__PACKAGE__ . "_links_removed_callback_args"}{$key};
+    for my $removed_friend (@$removed) {
+      $self->$callback_rm_meth(link => $added_friend,
+			       %{$callback_add_args});
+    }
+  }
   # TO DO: check on sets too
 }
 
