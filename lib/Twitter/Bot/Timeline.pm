@@ -35,7 +35,17 @@ need not use this interface.
 
 =item new()
 
-Constructs a new (possibly revived) object. Given keys:
+Constructs a new (possibly revived) object.
+
+=cut
+
+sub new {
+  my $class = shift;
+  my %args = @_;
+
+=pod
+
+Given keys:
 
 =over
 
@@ -44,24 +54,53 @@ Constructs a new (possibly revived) object. Given keys:
 hashref representing state (last-checked info, etc); C<Twitter::Bot>
 uses a tied MLDBM hash to populate this
 
+=cut
+
+  croak "no state defined to $class"
+    unless defined $args{state};
+  croak "state key not a hashref"
+    unless ref $args{state} eq 'HASH';
+
 =item statuses
 
 hashref representing statuses (id => status hashref); C<Twitter::Bot>
 uses a tied MLDBM hash to populate this
+
+=cut
+
+  croak "no statuses defined to $class"
+    unless defined $args{statuses};
+  croak "statuses key not a hashref"
+    unless ref $args{state} eq 'HASH';
 
 =item timeline
 
 which timeline to check (C<public_timeline>, C<friends_timeline>,
 C<user_timeline>)
 
+=cut
+
+  croak "no timeline argument defined to $class"
+    unless defined $args{timeline};
+
 =item user
 
 which C<user_timeline> (or C<friends_timeline>) to check (ignored on
 C<public_timeline>)
 
+=cut
+
+  croak "no user argument defined to $class"
+    unless defined $args{user};
+
 =back
 
-=item revive()
+=cut
+
+  my $self = bless \%args, $self;
+
+  return $self;
+}
 
 =back
 
