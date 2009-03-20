@@ -71,6 +71,12 @@ C<public_timeline>)
 
 =item check()
 
+Does nothing if interval since last check not yet passed.
+
+Otherwise checks given C<twitter> object on the user/timeline
+specified at initialization, and returns C<status> hashrefs not
+previously seen.
+
 =item seen_status()
 
 =back
