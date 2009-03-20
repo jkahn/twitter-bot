@@ -263,7 +263,7 @@ to the arguments given to the C<callback_method> when called.
 
 =cut
 
-  # TO DO: construct a Twitter::Bot::Timeline object
+  # construct a Twitter::Bot::Timeline object
   my $key = $args{user} . "_" . $args{timeline};
 
   if (defined $self->{__PACKAGE__ . "_timeline"}{$key}) {
@@ -577,7 +577,19 @@ sub _revive {
   my $class = shift;
   my $file = shift;
 
-  # TO DO: revive a tied MLDBM hashref from this file
+  use MLDBM qw(DB_File Storable);
+  use Fcntl; # for constants
+
+  if (not -f $file) {
+    warn "initializing datastructure in $file\n";
+  }
+
+  my %data;
+  tie %data, 'MLDBM' => $file, O_CREAT|O_RDWR, 0644
+    or die "can't revive $file: $!\n";
+  (tied %data)->DumpMeth('portable');
+
+  return \%data;
 }
 
 sub _upgrade_duration {
