@@ -93,6 +93,15 @@ C<public_timeline>)
   croak "no user argument defined to $class"
     unless defined $args{user};
 
+=item interval
+
+a C<DateTime::Duration> object specifying minimum time between checks.
+
+=cut
+
+  croak "no interval defined to $class"
+    unless defined $args{interval};
+
 =back
 
 =cut
