@@ -125,6 +125,40 @@ Otherwise checks given C<twitter> object on the user/timeline
 specified at initialization, and returns C<status> hashrefs not
 previously seen.
 
+=cut
+
+sub check {
+  my $self = shift;
+  my $class = ref $self;
+  my %args = @_;
+
+  my $now = DateTime->now();
+  if (defined $self->{state}{last_checked}) {
+    return
+      if $now < $self->{state}{last_checked} + $self->{interval};
+  }
+
+  croak "no twitter arg defined to $class->check()"
+    unless defined $args{twitter};
+  croak "twitter arg doesn't seem to be a Net::Twitter object"
+    unless UNIVERSAL::isa($args{twitter}, 'Net::Twitter');
+
+  my $method = $self->{timeline};
+
+  # TO DO: include since argument? or since_id? Twitter-end lag might
+  # mean we miss some with since_id
+  my $results =
+    $twitter->$method({user => $self->{user}, count => 200});
+
+  if (not defined $results) {
+    croak "trouble from twitter->$method: ", $twitter->get_error();
+  }
+
+  $self->{state}{last_checked} = $now;
+
+  return $results;
+} # end check()
+
 =item seen_status()
 
 =back
