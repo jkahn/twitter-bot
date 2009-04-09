@@ -37,6 +37,12 @@ need not use this interface.
 
 Takes the following arguments as a k/v hash:
 
+=cut
+
+sub new {
+  my $class = shift;
+  my %args = @_;
+
 =over
 
 =item state
@@ -44,19 +50,45 @@ Takes the following arguments as a k/v hash:
 a hashref indicating current state. C<Twitter::Bot> initializes these
 from MLDBM files on disk.
 
+=cut
+
+  croak "no state key defined to $class->new()"
+    unless defined $args{state};
+  croak "state key not a hashref"
+    unless ref $args{state} eq 'HASH';
+
 =item set
 
 a hashref pointing to the set of current links. keys are userids,
 values are actual userinfo.
 
+=cut
+
+  croak "no set key defined to $class->new"
+    unless defined $args{set};
+  croak "set key not a hashref"
+    unless ref $args{set} eq 'HASH';
+
 =item user
 
 which user in the Twitter friends graph is being considered
+
+=cut
+
+  croak "no user key defined to $class->new"
+    unless defined $args{user};
 
 =item links
 
 whether this is a set of C<friends> (outbound) or C<followers>
 (inbound) links between C<user> and other twitterers.
+
+=cut
+
+  croak "no links key provided to $class->new"
+    unless defined $args{links};
+  croak "links arg not friends or followers"
+    unless $args{links} eq 'friends' or $args{links} eq 'followers';
 
 =item interval
 
@@ -65,7 +97,22 @@ checks; further calls to C<check> at less than C<interval> will
 harmlessly no-op, allowing different networks to be checked in the
 same script at different intervals.
 
+=cut
+
+  croak "no interval key provided to $class->new"
+    unless defined $args{interval};
+  croak "interval not a DateTime::Duration"
+    unless UNIVERSAL::isa($args{interval}, 'DateTime::Duration');
+
 =back
+
+=cut
+
+  my $self = bless \%args, $class;
+
+  return $self;
+}
+
 
 =back
 
