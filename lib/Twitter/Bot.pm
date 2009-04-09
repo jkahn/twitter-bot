@@ -133,8 +133,9 @@ that.
 
 =cut
 
+  # TO DO: specify source and clientname to twitter object
   my $twitter =
-    Net::Twitter->new(username => $username, password => $password);
+    Net::Twitter->new({username => $username, password => $password});
   croak "something went wrong with twitter initialization"
     unless defined $twitter;
   $args{__PACKAGE__ . "_twitter"} = $twitter;
@@ -494,6 +495,7 @@ sub check {
 
   my $twitter = $self->twitter();
 
+  # handle all the timeline appearances
   for my $key (sort keys %{$self->{__PACKAGE__ . "_timeline"}} ) {
     my $timeline_obj  = $self->{__PACKAGE__ . "_timeline"}{$key};
     my $callback_meth = $self->{__PACKAGE__ . "_timeline_callback"}{$key};
@@ -505,6 +507,7 @@ sub check {
     }
   }
 
+  # handle all the links added/dropped
   for my $key (sort keys %{$self->{__PACKAGE__ . "_links"}} ) {
     my $links_obj  = $self->{__PACKAGE__ . "_links"}{$key};
 
@@ -524,11 +527,10 @@ sub check {
     my $callback_rm_args
       = $self->{__PACKAGE__ . "_links_removed_callback_args"}{$key};
     for my $removed_friend (@$removed) {
-      $self->$callback_rm_meth(link => $added_friend,
+      $self->$callback_rm_meth(link => $removed_friend,
 			       %{$callback_add_args});
     }
   }
-  # TO DO: check on sets too
 }
 
 =item twitter()
