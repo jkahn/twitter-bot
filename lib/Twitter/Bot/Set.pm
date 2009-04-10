@@ -122,7 +122,66 @@ same script at different intervals.
 
 =item check()
 
-=item seen_link()
+Does nothing if interval since last check not yet passed.
+
+Otherwise checks given C<twitter> object on the C<user> and C<links>
+(value C<friends> or C<followers>) specified at initialization, and
+returns two listrefs (added and removed) for the set.
+
+=cut
+
+sub check {
+  my $self = shift;
+  my $class = ref $self;
+  my %args = @_;
+
+  # this bit is identical with Twitter::Bot::Timeline -- refactor into
+  # an ABC?
+  my $now = DateTime->now();
+  if (defined $self->{state}{last_checked}) {
+    return
+      if $now < $self->{state}{last_checked} + $self->{interval};
+  }
+  croak "no twitter arg defined to $class->check()"
+    unless defined $args{twitter};
+  croak "twitter arg doesn't seem to be a Net::Twitter object"
+    unless UNIVERSAL::isa($args{twitter}, 'Net::Twitter');
+
+  my $method = $self->{links};
+
+  # TO DO: include since argument?
+  my $results =
+    $args{twitter}->$method({user => $self->{user}});
+
+  # TO DO: bail out now if there's a twitter problem. Don't want to
+  # try to update until Twitter gives back data.
+
+  # TO DO: if #links > 100, might not get whole list. revise to
+  # re-call with page => 2 etc?  deal with it later, when popular
+  # enough that friendslist is >100.
+
+
+  # go through results. Look for new matches.
+  my @added;
+  my %curr;
+  for my $curr (@$results) {
+    my $curr_id = $curr->{id};
+    $curr{$curr_id} = 1;
+    next if $self->{set}{$curr_id};
+    $self->{set}{$curr_id} = $curr;
+    push @added, $curr;
+  }
+
+  # go through old values. Look for dropouts
+  my @removed;
+  for my $old_id (keys %{$self->{set}})  {
+    next if $curr{$old_id};
+    my $old = $self->{set}{$old_id};
+    delete $self->{set}{$old_id};
+    push @removed, $old;
+  }
+  return \@added, \@removed;
+}
 
 =back
 
