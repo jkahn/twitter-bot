@@ -106,7 +106,7 @@ a C<DateTime::Duration> object specifying minimum time between checks.
 
 =cut
 
-  my $self = bless \%args, $self;
+  my $self = bless \%args, $class;
 
   return $self;
 }
@@ -148,10 +148,10 @@ sub check {
   # TO DO: include since argument? or since_id? Twitter-end lag might
   # mean we miss some with since_id
   my $results =
-    $twitter->$method({user => $self->{user}, count => 200});
+    $args{twitter}->$method({user => $self->{user}, count => 200});
 
   if (not defined $results) {
-    croak "trouble from twitter->$method: ", $twitter->get_error();
+    croak "trouble from twitter->$method: ", $args{twitter}->get_error();
   }
 
   $self->{state}{last_checked} = $now;
