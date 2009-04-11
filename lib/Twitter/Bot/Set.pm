@@ -153,8 +153,14 @@ sub check {
   my $results =
     $args{twitter}->$method({user => $self->{user}});
 
-  # TO DO: bail out now if there's a twitter problem. Don't want to
+  # bail out now if there's a twitter problem. Don't want to
   # try to update until Twitter gives back data.
+  if (not defined $results) {
+    croak "trouble from twitter->$method: ", $args{twitter}->get_error();
+  }
+
+  $self->{state}{last_checked} = $now;
+
 
   # TO DO: if #links > 100, might not get whole list. revise to
   # re-call with page => 2 etc?  deal with it later, when popular
