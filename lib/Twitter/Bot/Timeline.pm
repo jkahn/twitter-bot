@@ -156,10 +156,19 @@ sub check {
 
   $self->{state}{last_checked} = $now;
 
-  return $results;
-} # end check()
 
-=item seen_status()
+  # TO DO: retrieve more $results if count too large?  deal with it
+  # later when traffic is heavy.
+
+  # go through new statuses and discard those previously seen.
+  my @new = grep { not $self->{statuses}{$_->{id}} } @$results;
+
+  for my $status (@new) {
+    $self->{statuses}{$status->{id}} = $status;
+  }
+
+  return \@new;
+} # end check()
 
 =back
 
