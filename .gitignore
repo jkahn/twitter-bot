@@ -1,3 +1,5 @@
+/inc/*
+/META.yml
 blib*
 Makefile
 Makefile.old
