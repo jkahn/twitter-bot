@@ -129,13 +129,58 @@ that.
   $args{__PACKAGE__ . "_directory"} = $args{directory};
   delete $args{directory};
 
+=item clientname
+
+The clientname to be specified in the C<X-Twitter-Client-Name> HTTP
+header. If not specified, defaults to the name of the class
+(remember, users subclass C<Twitter::Bot>; it is the subclass name we
+will use) and the C<$VERSION> of that class, if it can be found.
+
+Any specified value will be passed through as the C<clientname>
+argument to the C<Net::Twitter> object.  If you want the
+C<Net::Twitter> defaults ("Perl Net::Twitter" according to docs) then
+set this value to C<undef>.
+
+=cut
+
+  if (not exists $args{clientname}) {
+    no strict;
+    my $classver = $class::VERSION;
+    if (defined $classver) {
+      $args{clientname} = "$class $classver";
+    }
+    else {
+      $args{clientname} = $class;
+    }
+  }
+  if (not defined $args{clientname} and exists $args{clientname}) {
+    delete $args{clientname};
+  }
+
+=item source
+
+The C<source> key to pass to twitter. If you set this key, the
+C<source> key on the C<Net::Twitter> object will be set to this
+value. See C<Net::Twitter> for interpretation.  Key quotation from the
+C<Net::Twitter> documentation:
+
+  Twitter claims that specifying a nonexistant [source] code will cause
+  the system to default to "from web". If you don’t have a code
+  from twitter, don’t set one.
+
 =back
 
 =cut
 
-  # TO DO: specify source and clientname to twitter object
   my $twitter =
-    Net::Twitter->new({username => $username, password => $password});
+    Net::Twitter->new({username => $username, password => $password,
+		       (exists $args{clientname}
+			? (clientname => $args{clientname})
+			: ()),
+		       (exists $args{source}
+			? (source => $args{source})
+			: ()),
+		      });
   croak "something went wrong with twitter initialization"
     unless defined $twitter;
   $args{__PACKAGE__ . "_twitter"} = $twitter;
