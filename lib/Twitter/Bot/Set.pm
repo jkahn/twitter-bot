@@ -151,7 +151,7 @@ sub check {
 
   # TO DO: include since argument?
   my $results =
-    $args{twitter}->$method({user => $self->{user}});
+    $args{twitter}->$method({id => $self->{user}});
 
   # bail out now if there's a twitter problem. Don't want to
   # try to update until Twitter gives back data.

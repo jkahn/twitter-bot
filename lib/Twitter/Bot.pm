@@ -254,7 +254,7 @@ The public timeline.
 =cut
 
   croak "timeline => $args{timeline} unrecognized"
-    unless $args{timeline} = /^(user|friends|public)_timeline$/;
+    unless $args{timeline} =~ /^(user|friends|public)_timeline$/;
 
 =item user
 
@@ -326,9 +326,10 @@ to the arguments given to the C<callback_method> when called.
 
 
 
+  use Twitter::Bot::Timeline;
   my $timeline_obj =
-    Twitter::Bot::Timeline->new(state => \$state,
-				statuses => \$statuses,
+    Twitter::Bot::Timeline->new(state => $state,
+				statuses => $statuses,
 			        timeline => $args{timeline},
 				interval => $args{interval},
 			        user => $args{user});
@@ -493,9 +494,10 @@ must be provided.
   my $state = $class->_revive($statefile);
   my $set = $class->_revive($setfile);
 
+  use Twitter::Bot::Set;
   my $set_obj =
-    Twitter::Bot::Set->new(state => \$state,
-			   set => \$set,
+    Twitter::Bot::Set->new(state => $state,
+			   set => $set,
 			   links => $args{links},
 			   interval => $args{interval},
 			   user => $args{user});
@@ -691,6 +693,7 @@ sub _upgrade_duration {
   # if they're not already.
   my $class = shift;
   my $dur = shift;
+  use DateTime::Duration;
   if (UNIVERSAL::isa($dur, 'DateTime::Duration')) {
     return $dur;
   }

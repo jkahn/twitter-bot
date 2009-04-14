@@ -132,6 +132,7 @@ sub check {
   my $class = ref $self;
   my %args = @_;
 
+  use DateTime;
   my $now = DateTime->now();
   if (defined $self->{state}{last_checked}) {
     return
@@ -147,8 +148,10 @@ sub check {
 
   # TO DO: include since argument? or since_id? Twitter-end lag might
   # mean we miss some with since_id
+
+  # FILE BUG WITH NET::TWITTER about id arg with friends_timeline
   my $results =
-    $args{twitter}->$method({user => $self->{user}, count => 200});
+    $args{twitter}->$method({id => $self->{user}, count => 200});
 
   if (not defined $results) {
     croak "trouble from twitter->$method: ", $args{twitter}->get_error();
