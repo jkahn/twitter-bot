@@ -172,6 +172,7 @@ C<Net::Twitter> documentation:
 
 =cut
 
+  use Net::Twitter;
   my $twitter =
     Net::Twitter->new({username => $username, password => $password,
 		       (exists $args{clientname}
