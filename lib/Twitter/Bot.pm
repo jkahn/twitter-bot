@@ -518,6 +518,52 @@ must be provided.
   return;
 } # end links_callback
 
+=item auto_reciprocal_follow()
+
+A shortcut for registering callbacks on C<followers> (inbound) links
+to add or remove C<friends> (outbound) links when the inbound links
+are added or removed respectively.  Pass C<interval> to set the
+minimum time between checks (default 30 minutes).
+
+You may also pass a different value C<user>, but the default is the
+user provided by C<username> which is probably what you
+want. (Changing the C<user> key will do some kind of largely-untested
+link-shadowing. Not recommended, because the etiquette is not clear.)
+
+This method is strictly here for simplicity in writing subclasses.  If
+you want to do something different on being followed or unfollowed
+(send welcome messages, email, etc) it is probably easier to write
+your own call to C<links_callback>.
+
+=cut
+
+sub auto_reciprocal_follow {
+  my $self = shift;
+  my %args = @_;
+
+  # TO DO: set default interval?
+  $self->links_callback(links => 'followers',
+			callback_add_method => '_auto_follow',
+			callback_add_args => {follow => 1},
+			callback_remove_method => '_auto_follow',
+			callback_remove_args => {follow => 0},
+			%args,
+		       );
+}
+sub _auto_follow {
+  my $self = shift;
+  my %args = @_;
+  my $twitter = $self->twitter();
+  my $link = $args{link};
+  if ($args{follow}) {
+    die "follow link reciprocal";
+  }
+  else {
+    die "unfollow user reciprocally";
+  }
+}
+
+
 =back
 
 =head1 INSTANCE METHODS
