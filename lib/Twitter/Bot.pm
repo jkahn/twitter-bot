@@ -608,21 +608,21 @@ sub check {
     my ($added, $removed) = $links_obj->check(twitter => $twitter);
 
     my $callback_add_meth
-      = $self->{__PACKAGE__ . "_links_added_callback"}{$key};
+      = $self->{__PACKAGE__ . "_links_add_callback"}{$key};
     my $callback_add_args
-      = $self->{__PACKAGE__ . "_links_added_callback_args"}{$key};
+      = $self->{__PACKAGE__ . "_links_add_args"}{$key};
     for my $added_friend (@$added) {
       $self->$callback_add_meth(link => $added_friend,
 				%{$callback_add_args});
     }
 
     my $callback_rm_meth
-      = $self->{__PACKAGE__ . "_links_removed_callback"}{$key};
+      = $self->{__PACKAGE__ . "_links_remove_callback"}{$key};
     my $callback_rm_args
-      = $self->{__PACKAGE__ . "_links_removed_callback_args"}{$key};
+      = $self->{__PACKAGE__ . "_links_remove_args"}{$key};
     for my $removed_friend (@$removed) {
       $self->$callback_rm_meth(link => $removed_friend,
-			       %{$callback_add_args});
+			       %{$callback_rm_args});
     }
   }
 }
