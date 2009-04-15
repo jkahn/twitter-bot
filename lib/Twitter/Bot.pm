@@ -543,12 +543,23 @@ sub auto_reciprocal_follow {
   my $self = shift;
   my %args = @_;
 
-  # TO DO: set default interval?
+  my $verbose = $args{verbose};
+  delete $args{verbose};
+
+  if (not defined $args{interval}) {
+    $args{interval} = {minutes => 30};
+  }
+
   $self->links_callback(links => 'followers',
+			# add
 			callback_add_method => '_auto_follow',
-			callback_add_args => {follow => 1},
+			callback_add_args =>
+			{follow => 1, verbose => $verbose},
+			# remove
 			callback_remove_method => '_auto_follow',
-			callback_remove_args => {follow => 0},
+			callback_remove_args =>
+			{follow => 0, verbose => $verbose},
+			# misc
 			%args,
 		       );
 }
@@ -557,10 +568,27 @@ sub _auto_follow {
   my %args = @_;
   my $twitter = $self->twitter();
   my $link = $args{link};
+
+  my $name = $link->{screen_name};
+  my $id = $link->{id};
+
   if ($args{follow}) {
-    die "follow link reciprocal";
+    warn "reciprocal follow to $name (id: $id)\n";
+    if ($twitter->relationship_exists($self->username() => $id)) {
+      warn "I think I'm already following $name, not reciprocal following\n"
+	if $args{verbose};
+      return;
+    }
+    $twitter->create_friend({id => $id, follow => 1})
+      or carp "trouble friending $name";
   }
   else {
+    warn "reciprocal unfollow to $name (id: $id)\n";
+    if (not $twitter->relationship_exists($self->username() => $id)) {
+      warn "I think I'm already not following $name, no reciprocal unfollowing\n"
+	if $args{verbose};
+      return;
+    }
     die "unfollow user reciprocally";
   }
 }
