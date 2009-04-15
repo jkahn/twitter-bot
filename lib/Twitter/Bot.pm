@@ -589,7 +589,8 @@ sub _auto_follow {
 	if $args{verbose};
       return;
     }
-    die "unfollow user reciprocally";
+    $twitter->destroy_friend({id => $id})
+      or carp "trouble unfriending $name";
   }
 }
 
