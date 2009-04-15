@@ -149,12 +149,21 @@ sub check {
   # TO DO: include since argument? or since_id? Twitter-end lag might
   # mean we miss some with since_id
 
-  # FILE BUG WITH NET::TWITTER about id arg with friends_timeline
+  # FILE BUG WITH NET::TWITTER about id arg with friends_timeline,
+  # count arg with public_timeline
+  my %twitter_args = (id => $self->{user}, count => 200);
+  if ($method eq 'public_timeline') {
+    delete $twitter_args{id};
+    delete $twitter_args{count}
+  }
+
   my $results =
-    $args{twitter}->$method({id => $self->{user}, count => 200});
+    $args{twitter}->$method(\%twitter_args);
 
   if (not defined $results) {
-    croak "trouble from twitter->$method: ", $args{twitter}->get_error();
+    use Data::Dumper;
+    my $trouble= Dumper($args{twitter}->get_error());
+    croak "trouble from twitter->$method:\n$trouble";
   }
 
   $self->{state}{last_checked} = $now;
