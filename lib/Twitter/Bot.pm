@@ -624,7 +624,10 @@ sub check {
     my $callback_meth = $self->{__PACKAGE__ . "_timeline_callback"}{$key};
     my $callback_args = $self->{__PACKAGE__ . "_timeline_callback_args"}{$key};
 
-    my $statuses = $timeline_obj->check(twitter => $twitter);
+    my $statuses = eval { $timeline_obj->check(twitter => $twitter);  };
+    if ($@) {
+      $self->catch_twitter($@);
+    }
     for my $status (@$statuses) {
       $self->$callback_meth(status => $status, %{$callback_args});
     }
@@ -634,7 +637,10 @@ sub check {
   for my $key (sort keys %{$self->{__PACKAGE__ . "_links"}} ) {
     my $links_obj  = $self->{__PACKAGE__ . "_links"}{$key};
 
-    my ($added, $removed) = $links_obj->check(twitter => $twitter);
+    my ($added, $removed) = eval { $links_obj->check(twitter => $twitter); };
+    if ($@) {
+      $self->catch_twitter($@);
+    }
 
     my $callback_add_meth
       = $self->{__PACKAGE__ . "_links_add_callback"}{$key};
@@ -654,6 +660,15 @@ sub check {
 			       %{$callback_rm_args});
     }
   }
+}
+
+sub catch_twitter {
+  my $self = shift;
+  my $problem = shift;
+  if ($problem =~ /Twitter is over capacity\./) {
+    croak "fail-whale [Twitter over capacity]";
+  }
+  croak $problem;
 }
 
 =item twitter()
