@@ -156,7 +156,9 @@ sub check {
   # bail out now if there's a twitter problem. Don't want to
   # try to update until Twitter gives back data.
   if (not defined $results) {
-    croak "trouble from twitter->$method: ", $args{twitter}->get_error();
+    use Data::Dumper;
+    my $trouble= Dumper($args{twitter}->get_error());
+    croak "trouble from twitter->$method:\n$trouble";
   }
 
   $self->{state}{last_checked} = $now;
